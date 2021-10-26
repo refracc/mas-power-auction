@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using ActressMas;
+﻿using ActressMas;
+using System;
 
 namespace Coursework
 {
@@ -20,6 +18,7 @@ namespace Coursework
             }
 
             env.Start();
+            Console.ReadLine();
         }
     }
 }
