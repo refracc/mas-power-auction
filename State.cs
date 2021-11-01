@@ -3,7 +3,6 @@
     public enum State
     {
         BUY,
-        SELL,
-        USE
+        SELL
     }
 }

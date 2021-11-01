@@ -11,9 +11,13 @@ namespace Coursework
             var env = new EnvironmentMas();
             var e = new EnvironmentAgent();
             env.Add(e, "environment");
+
+            var b = new BrokerAgent();
+            env.Add(b, "broker");
+
             List<HouseAgent> agents = new();
 
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 5; i++)
             {
                 var a = new HouseAgent();
                 agents.Add(a);
