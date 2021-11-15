@@ -1,18 +1,18 @@
-﻿using System;
+﻿using ActressMas;
+using System;
 using System.Collections.Generic;
-using System.Collections.Concurrent;
-using System.Text;
-using ActressMas;
 
 namespace Coursework
 {
     public class BrokerAgent : Agent
     {
-        private Dictionary<string, int> _sellingAgents;
+        public static Dictionary<string, int> SellingAgents;
+        public static List<string> BuyingAgents;
 
         public BrokerAgent()
         {
-            _sellingAgents = new();
+            SellingAgents = new();
+            BuyingAgents = new();
         }
 
         public override void Act(Message message)
@@ -22,14 +22,18 @@ namespace Coursework
 
             if (message.Content.StartsWith("register"))
             {
-                _sellingAgents.Add(msg[1], int.Parse(msg[7]));
-            } else if (message.Content.StartsWith("search"))
+                SellingAgents.Add(msg[1], int.Parse(msg[7]));
+            } else if (message.Content.StartsWith("buying"))
             {
-                if (_sellingAgents.Count > 0)
+                BuyingAgents.Add(message.Sender);
+            } 
+            else if (message.Content.StartsWith("search"))
+            {
+                if (SellingAgents.Count > 0)
                 {
                     string name = "";
                     int lowest = int.MaxValue;
-                    foreach (KeyValuePair<string, int> pair in _sellingAgents)
+                    foreach (KeyValuePair<string, int> pair in SellingAgents)
                     {
                         if (pair.Value < lowest)
                         {
@@ -45,7 +49,8 @@ namespace Coursework
                 }
             } else if (message.Content.StartsWith("unregister"))
             {
-                _sellingAgents.Remove(message.Sender);
+                if (BuyingAgents.Contains(message.Sender)) BuyingAgents.Remove(message.Sender);
+                if (SellingAgents.ContainsKey(message.Sender)) SellingAgents.Remove(message.Sender);
             }
          }
     }

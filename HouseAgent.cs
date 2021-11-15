@@ -1,5 +1,6 @@
 ﻿using ActressMas;
 using System;
+using System.Threading;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 
@@ -36,15 +37,22 @@ namespace Coursework
                     _sellToUtility = int.Parse(msg[4]);
                     _state = (_demand > _generation) ? State.BUY : State.SELL;
                     _sellable = (_generation > _demand) ? (_generation - _demand) : 0;
+                    Console.WriteLine(ToString());
 
-                    if (_generation >= _demand)
-                    {
-                        _state = State.SELL;
-                        Console.WriteLine($"{Name} has satisifed their energy requirements!");
-                    }
                     if (_state == State.SELL)
                     {
-                        Send("broker", $"register {ToString()}");
+                        if (_demand != _generation)
+                        {
+                            Send("broker", $"register {ToString()}");
+                        } else
+                        {
+                            Send("broker", $"unregister");
+                            Console.WriteLine($"{Name} has satisifed their energy requirements!");
+                            Stop();
+                        }
+                    } else
+                    {
+                        Send("broker", "buying");
                     }
                 }
             } else if (message.Sender == "broker")
@@ -59,6 +67,8 @@ namespace Coursework
                     {
                         _state = State.SELL;
                         Console.WriteLine($"{Name} has satisifed their energy requirements!");
+                        Send("broker", "unregister");
+                        Stop();
                     }
                 } else if (message.Content.Contains("utility"))
                 {
@@ -68,6 +78,8 @@ namespace Coursework
                     {
                         _state = State.SELL;
                         Console.WriteLine($"{Name} has satisifed their energy requirements!");
+                        Send("broker", "unregister");
+                        Stop();
                     }
                 }
             } else if (message.Sender.Contains("house"))
@@ -82,7 +94,25 @@ namespace Coursework
 
         public override void ActDefault()
         {
-            if (_state == State.BUY)
+            Thread.Sleep(15);
+
+            if (_state == State.SELL)
+            {
+                if (_generation == _demand)
+                {
+                    Console.WriteLine($"{Name} has satisifed their energy requirements!");
+                    Send("broker", "unregister");
+                    Stop();
+                } else if (_generation > _demand)
+                {
+                    if (BrokerAgent.BuyingAgents.Count == 0)
+                    {
+                        _balance += _sellToUtility;
+                        _generation--;
+                        return;
+                    }
+                }
+            } else if (_state == State.BUY && BrokerAgent.SellingAgents.Count > 0)
             {
                 Send("broker", "search");
                 return;

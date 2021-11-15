@@ -1,5 +1,6 @@
 ﻿using ActressMas;
 using System;
+using System.IO;
 using System.Collections.Generic;
 
 namespace Coursework
@@ -17,7 +18,7 @@ namespace Coursework
 
             List<HouseAgent> agents = new();
 
-            for (int i = 0; i < 5; i++)
+            for (int i = 1; i <= 5; i++)
             {
                 var a = new HouseAgent();
                 agents.Add(a);
@@ -25,7 +26,6 @@ namespace Coursework
             }
 
             env.Start();
-            Console.ReadLine();
         }
     }
 }
