@@ -101,32 +101,32 @@ namespace Coursework
             {
                 Thread.Sleep(250);
                 _initialised = !_initialised;
+                return;
             }
 
-            if (_initialised)
-            {
-                if (_state == State.SELL && _generation == _demand)
-                {
-                    HandleStop();
-                }
-                else if (_state == State.SELL)
-                {
-                    if (_generation > _demand)
-                    {
-                        if (BrokerAgent.BuyingAgents.Count == 0)
-                        {
-                            _balance += _sellToUtility;
-                            _generation--;
+            if (!_initialised) return;
 
-                            if (_generation == _demand) HandleStop();
-                        }
-                    }
-                    else if (_generation == _demand) HandleStop();
-                }
-                else if (_state == State.BUY)
+            if (_state == State.SELL && _generation == _demand)
+            {
+                HandleStop();
+            }
+            else if (_state == State.SELL)
+            {
+                if (_generation > _demand)
                 {
-                    Send("broker", "search");
+                    if (BrokerAgent.BuyingAgents.Count == 0)
+                    {
+                        _balance += _sellToUtility;
+                        _generation--;
+
+                        if (_generation == _demand) HandleStop();
+                    }
                 }
+                else if (_generation == _demand) HandleStop();
+            }
+            else if (_state == State.BUY)
+            {
+                Send("broker", "search");
             }
         }
 
