@@ -50,17 +50,11 @@ namespace Coursework
             }
             else if (message.Content.StartsWith("unregister"))
             {
-                if (BuyingAgents.Contains(message.Sender))
-                {
-                    BuyingAgents.Remove(message.Sender);
-                }
+                if (BuyingAgents.Contains(message.Sender)) BuyingAgents.Remove(message.Sender);
 
-                if (SellingAgents.ContainsKey(message.Sender))
-                {
-                    SellingAgents.Remove(message.Sender);
-                }
+                if (SellingAgents.ContainsKey(message.Sender)) SellingAgents.Remove(message.Sender);
 
-                if ((SellingAgents.Count != 0) || (BuyingAgents.Count != 0)) return;
+                if (SellingAgents.Count != 0 || BuyingAgents.Count != 0) return;
                 Send("environment", "stop");
                 Stop();
             }

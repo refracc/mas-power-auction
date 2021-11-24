@@ -17,7 +17,7 @@ namespace Coursework
 
             var agents = new List<HouseAgent>();
 
-            for (int i = 1; i <= 5; i++)
+            for (var i = 1; i <= 5; i++)
             {
                 var a = new HouseAgent();
                 agents.Add(a);
@@ -26,10 +26,7 @@ namespace Coursework
 
             env.Start();
 
-            foreach (var a in agents)
-            {
-                Console.WriteLine(a.ToString());
-            }
+            foreach (var a in agents) Console.WriteLine(a.ToString());
 
             Console.ReadLine();
         }

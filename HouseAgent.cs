@@ -35,16 +35,14 @@ namespace Coursework
                         _generation = int.Parse(msg[2]);
                         _purchaseFromUtility = int.Parse(msg[3]);
                         _sellToUtility = int.Parse(msg[4]);
-                        _state = (_demand > _generation) ? State.BUY : State.SELL;
-                        _sellable = (_generation > _demand) ? (_generation - _demand) : 0;
+                        _state = _demand > _generation ? State.BUY : State.SELL;
+                        _sellable = _generation > _demand ? _generation - _demand : 0;
                         Console.WriteLine(ToString());
 
                         if (_state == State.SELL)
                         {
                             if (_demand != _generation)
-                            {
                                 Send("broker", $"register {ToString()}");
-                            }
                             else HandleStop();
                         }
                         else
@@ -57,7 +55,7 @@ namespace Coursework
                 }
                 case "broker" when message.Content.StartsWith("seller"):
                 {
-                    Send(msg[1], $"purchase");
+                    Send(msg[1], "purchase");
                     _balance -= int.Parse(msg[2]);
                     _generation++;
 
@@ -79,7 +77,6 @@ namespace Coursework
                 default:
                 {
                     if (message.Sender.Contains("house"))
-                    {
                         if (message.Content.StartsWith("purchase"))
                         {
                             _balance += _sellToNeighbour;
@@ -87,7 +84,6 @@ namespace Coursework
 
                             if (_demand == _generation) HandleStop();
                         }
-                    }
 
                     break;
                 }
@@ -106,7 +102,6 @@ namespace Coursework
                 case State.SELL:
                 {
                     if (_generation > _demand)
-                    {
                         if (BrokerAgent.BuyingAgents.Count == 0)
                         {
                             _balance += _sellToUtility;
@@ -114,7 +109,6 @@ namespace Coursework
 
                             if (_generation == _demand) HandleStop();
                         }
-                    }
 
                     break;
                 }
