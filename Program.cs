@@ -9,7 +9,8 @@ namespace Coursework
     {
         public static void Main(string[] _)
         {
-            for (int j = 0; j < 10; j++)
+            File.Delete("mas-experiments.csv");
+            for (var j = 0; j < 10; j++)
             {
                 var env = new EnvironmentMas();
                 var e = new EnvironmentAgent();
@@ -30,6 +31,7 @@ namespace Coursework
                 env.Start();
 
                 foreach (var a in agents) Console.WriteLine(a.ToString());
+
                 WriteToFile(agents);
 
                 Console.ReadLine();
