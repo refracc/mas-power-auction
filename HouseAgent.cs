@@ -44,12 +44,8 @@ namespace Coursework
                         if (_demand != _generation)
                         {
                             Send("broker", $"register {ToString()}");
-                        } else
-                        {
-                            Send("broker", $"unregister");
-                            Console.WriteLine($"{Name} has satisifed their energy requirements!");
-                            Stop();
                         }
+                        else HandleStop();
                     } else
                     {
                         Send("broker", "buying");
@@ -63,24 +59,14 @@ namespace Coursework
                     _balance -= int.Parse(msg[2]);
                     _generation++;
 
-                    if (_generation == _demand)
-                    {
-                        _state = State.SELL;
-                        Console.WriteLine($"{Name} has satisifed their energy requirements!");
-                        Send("broker", "unregister");
-                        Stop();
-                    }
+                    if (_generation == _demand) HandleStop();
+
                 } else if (message.Content.Contains("utility"))
                 {
                     _generation++;
-                    _balance -= _purchaseFromUtility; 
-                    if (_generation == _demand)
-                    {
-                        _state = State.SELL;
-                        Console.WriteLine($"{Name} has satisifed their energy requirements!");
-                        Send("broker", "unregister");
-                        Stop();
-                    }
+                    _balance -= _purchaseFromUtility;
+
+                    if (_generation == _demand) HandleStop();
                 }
             } else if (message.Sender.Contains("house"))
             {
@@ -88,6 +74,9 @@ namespace Coursework
                 {
                     _balance += _sellToNeighbour;
                     _generation--;
+
+                    if (_demand == _generation) HandleStop();
+
                 }
             }
         }
@@ -100,16 +89,15 @@ namespace Coursework
             {
                 if (_generation == _demand)
                 {
-                    Console.WriteLine($"{Name} has satisifed their energy requirements!");
-                    Send("broker", "unregister");
-                    Stop();
+                    HandleStop();
                 } else if (_generation > _demand)
                 {
                     if (BrokerAgent.BuyingAgents.Count == 0)
                     {
                         _balance += _sellToUtility;
                         _generation--;
-                        return;
+
+                        if (_generation == _demand) HandleStop();
                     }
                 }
             } else if (_state == State.BUY && BrokerAgent.SellingAgents.Count > 0)
@@ -122,6 +110,15 @@ namespace Coursework
         public override string ToString()
         {
             return $"{Name} {_demand} {_generation} {_purchaseFromUtility} {_sellToUtility} {_state} {_sellToNeighbour} {_balance} {_sellable}";
+        }
+
+        public void HandleStop()
+        {
+            _state = State.SELL;
+            Console.WriteLine($"{Name} has satisifed their energy requirements!");
+            Send("broker", "unregister");
+            Console.WriteLine(ToString());
+            Stop();
         }
     }
 }

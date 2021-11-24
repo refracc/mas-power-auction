@@ -1,7 +1,6 @@
 ﻿using ActressMas;
-using System;
-using System.IO;
 using System.Collections.Generic;
+using System;
 
 namespace Coursework
 {
@@ -16,16 +15,23 @@ namespace Coursework
             var b = new BrokerAgent();
             env.Add(b, "broker");
 
-            List<HouseAgent> agents = new();
+            List<HouseAgent> _agents = new List<HouseAgent>();
 
             for (int i = 1; i <= 5; i++)
             {
                 var a = new HouseAgent();
-                agents.Add(a);
+                _agents.Add(a);
                 env.Add(a, $"house{i}");
             }
 
             env.Start();
+
+            foreach (Agent a in _agents)
+            {
+                Console.WriteLine(a.ToString());
+            }
+
+            Console.ReadLine();
         }
     }
 }

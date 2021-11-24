@@ -40,6 +40,10 @@ namespace Coursework
                     Send(senderID, content); //send the message with this information back to the household agent that requested it
                     break;
 
+                case "stop":
+                    Stop();
+                    break;
+
                 default:
                     break;
             }
