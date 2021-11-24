@@ -8,6 +8,8 @@
     <OldToolsVersion>Current</OldToolsVersion>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\ActressMas Framework\ActressMas\ActressMas.csproj" />
+    <Reference Include="ActressMas, Version=3.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\ActressMas-master\ActressMas-master\ActressMAS v3.0\ActressMas Dll\ActressMas.dll</HintPath>
+    </Reference>
   </ItemGroup>
 </Project>

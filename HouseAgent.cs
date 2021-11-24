@@ -1,20 +1,18 @@
-﻿using ActressMas;
-using System;
+﻿using System;
 using System.Threading;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
+using ActressMas;
 
 namespace Coursework
 {
     public class HouseAgent : Agent
     {
-        private int _demand = 0;
-        private int _generation = 0;
-        private int _purchaseFromUtility = 0;
-        private int _sellToUtility = 0;
-        private int _sellToNeighbour = new Random().Next(1, 3);
-        private int _balance = new Random().Next(10, 20);
-        private int _sellable = 0;
+        private readonly int _sellToNeighbour = new Random().Next(1, 3);
+        private int _balance;
+        private int _demand;
+        private int _generation;
+        private int _purchaseFromUtility;
+        private int _sellable;
+        private int _sellToUtility;
         private State _state = 0;
 
         public override void Setup()
@@ -26,57 +24,72 @@ namespace Coursework
         {
             Console.WriteLine(message.Format());
 
-            string[] msg = message.Content.Split(' ');
-            if (message.Sender == "environment")
+            var msg = message.Content.Split(' ');
+            switch (message.Sender)
             {
-                if (message.Content.StartsWith("inform"))
+                case "environment":
                 {
-                    _demand = int.Parse(msg[1]);
-                    _generation = int.Parse(msg[2]);
-                    _purchaseFromUtility = int.Parse(msg[3]);
-                    _sellToUtility = int.Parse(msg[4]);
-                    _state = (_demand > _generation) ? State.BUY : State.SELL;
-                    _sellable = (_generation > _demand) ? (_generation - _demand) : 0;
-                    Console.WriteLine(ToString());
+                    if (message.Content.StartsWith("inform"))
+                    {
+                        _demand = int.Parse(msg[1]);
+                        _generation = int.Parse(msg[2]);
+                        _purchaseFromUtility = int.Parse(msg[3]);
+                        _sellToUtility = int.Parse(msg[4]);
+                        _state = (_demand > _generation) ? State.BUY : State.SELL;
+                        _sellable = (_generation > _demand) ? (_generation - _demand) : 0;
+                        Console.WriteLine(ToString());
 
-                    if (_state == State.SELL)
-                    {
-                        if (_demand != _generation)
+                        if (_state == State.SELL)
                         {
-                            Send("broker", $"register {ToString()}");
+                            if (_demand != _generation)
+                            {
+                                Send("broker", $"register {ToString()}");
+                            }
+                            else HandleStop();
                         }
-                        else HandleStop();
-                    } else
-                    {
-                        Send("broker", "buying");
+                        else
+                        {
+                            Send("broker", "buying");
+                        }
                     }
+
+                    break;
                 }
-            } else if (message.Sender == "broker")
-            {
-                if (message.Content.StartsWith("seller"))
+                case "broker" when message.Content.StartsWith("seller"):
                 {
                     Send(msg[1], $"purchase");
                     _balance -= int.Parse(msg[2]);
                     _generation++;
 
                     if (_generation == _demand) HandleStop();
-
-                } else if (message.Content.Contains("utility"))
-                {
-                    _generation++;
-                    _balance -= _purchaseFromUtility;
-
-                    if (_generation == _demand) HandleStop();
+                    break;
                 }
-            } else if (message.Sender.Contains("house"))
-            {
-                if (message.Content.StartsWith("purchase"))
+                case "broker":
                 {
-                    _balance += _sellToNeighbour;
-                    _generation--;
+                    if (message.Content.Contains("utility"))
+                    {
+                        _generation++;
+                        _balance -= _purchaseFromUtility;
 
-                    if (_demand == _generation) HandleStop();
+                        if (_generation == _demand) HandleStop();
+                    }
 
+                    break;
+                }
+                default:
+                {
+                    if (message.Sender.Contains("house"))
+                    {
+                        if (message.Content.StartsWith("purchase"))
+                        {
+                            _balance += _sellToNeighbour;
+                            _generation--;
+
+                            if (_demand == _generation) HandleStop();
+                        }
+                    }
+
+                    break;
                 }
             }
         }
@@ -85,37 +98,42 @@ namespace Coursework
         {
             Thread.Sleep(15);
 
-            if (_state == State.SELL)
+            switch (_state)
             {
-                if (_generation == _demand)
-                {
+                case State.SELL when _generation == _demand:
                     HandleStop();
-                } else if (_generation > _demand)
+                    break;
+                case State.SELL:
                 {
-                    if (BrokerAgent.BuyingAgents.Count == 0)
+                    if (_generation > _demand)
                     {
-                        _balance += _sellToUtility;
-                        _generation--;
+                        if (BrokerAgent.BuyingAgents.Count == 0)
+                        {
+                            _balance += _sellToUtility;
+                            _generation--;
 
-                        if (_generation == _demand) HandleStop();
+                            if (_generation == _demand) HandleStop();
+                        }
                     }
+
+                    break;
                 }
-            } else if (_state == State.BUY && BrokerAgent.SellingAgents.Count > 0)
-            {
-                Send("broker", "search");
-                return;
+                case State.BUY when BrokerAgent.SellingAgents.Count > 0:
+                    Send("broker", "search");
+                    return;
             }
         }
 
         public override string ToString()
         {
-            return $"{Name} {_demand} {_generation} {_purchaseFromUtility} {_sellToUtility} {_state} {_sellToNeighbour} {_balance} {_sellable}";
+            return
+                $"{Name} {_demand} {_generation} {_purchaseFromUtility} {_sellToUtility} {_state} {_sellToNeighbour} {_balance} {_sellable}";
         }
 
-        public void HandleStop()
+        private void HandleStop()
         {
             _state = State.SELL;
-            Console.WriteLine($"{Name} has satisifed their energy requirements!");
+            Console.WriteLine($"{Name} has satisfied their energy requirements!");
             Send("broker", "unregister");
             Console.WriteLine(ToString());
             Stop();

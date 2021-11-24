@@ -1,7 +1,7 @@
-﻿using ActressMas;
-using System;
-using System.Threading;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using ActressMas;
 
 namespace Coursework
 {
@@ -19,7 +19,7 @@ namespace Coursework
         public override void Act(Message message)
         {
             Console.WriteLine($"\t{message.Format()}");
-            string[] msg = message.Content.Split(' ');
+            var msg = message.Content.Split(' ');
 
             if (message.Content.StartsWith("register"))
             {
@@ -33,15 +33,12 @@ namespace Coursework
             {
                 if (SellingAgents.Count > 0)
                 {
-                    string name = "";
-                    int lowest = int.MaxValue;
-                    foreach (KeyValuePair<string, int> pair in SellingAgents)
+                    var name = "";
+                    var lowest = int.MaxValue;
+                    foreach (var (key, value) in SellingAgents.Where(pair => pair.Value < lowest))
                     {
-                        if (pair.Value < lowest)
-                        {
-                            name = pair.Key;
-                            lowest = pair.Value;
-                        }
+                        name = key;
+                        lowest = value;
                     }
 
                     Send(message.Sender, $"seller {name} {lowest}");
@@ -57,17 +54,16 @@ namespace Coursework
                 {
                     BuyingAgents.Remove(message.Sender);
                 }
+
                 if (SellingAgents.ContainsKey(message.Sender))
                 {
                     SellingAgents.Remove(message.Sender);
                 }
 
-                if ((SellingAgents.Count == 0) && (BuyingAgents.Count == 0))
-                {
-                    Send("environment", "stop");
-                    Stop();
-                }
+                if ((SellingAgents.Count != 0) || (BuyingAgents.Count != 0)) return;
+                Send("environment", "stop");
+                Stop();
             }
-         }
+        }
     }
 }
