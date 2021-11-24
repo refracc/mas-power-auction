@@ -10,6 +10,9 @@ namespace Coursework
         private int _balance;
         private int _demand;
         private int _generation;
+        private int _initialDemand;
+        private bool _initialised;
+        private int _initialPower;
         private int _purchaseFromUtility;
         private int _sellable;
         private int _sellToUtility;
@@ -33,10 +36,12 @@ namespace Coursework
                     {
                         _demand = int.Parse(msg[1]);
                         _generation = int.Parse(msg[2]);
+                        _initialPower = _generation;
+                        _initialDemand = _demand;
                         _purchaseFromUtility = int.Parse(msg[3]);
                         _sellToUtility = int.Parse(msg[4]);
                         _state = _demand > _generation ? State.BUY : State.SELL;
-                        _sellable = _generation > _demand ? _generation - _demand : 0;
+                        _sellable = _generation - _demand;
                         Console.WriteLine(ToString());
 
                         if (_state == State.SELL)
@@ -92,16 +97,22 @@ namespace Coursework
 
         public override void ActDefault()
         {
-            Thread.Sleep(15);
-
-            switch (_state)
+            if (!_initialised)
             {
-                case State.SELL when _generation == _demand:
+                Thread.Sleep(250);
+                _initialised = !_initialised;
+            }
+
+            if (_initialised)
+            {
+                if (_state == State.SELL && _generation == _demand)
+                {
                     HandleStop();
-                    break;
-                case State.SELL:
+                }
+                else if (_state == State.SELL)
                 {
                     if (_generation > _demand)
+                    {
                         if (BrokerAgent.BuyingAgents.Count == 0)
                         {
                             _balance += _sellToUtility;
@@ -109,27 +120,24 @@ namespace Coursework
 
                             if (_generation == _demand) HandleStop();
                         }
-
-                    break;
+                    }
+                    else if (_generation == _demand) HandleStop();
                 }
-                case State.BUY when BrokerAgent.SellingAgents.Count > 0:
+                else if (_state == State.BUY)
+                {
                     Send("broker", "search");
-                    return;
+                }
             }
         }
 
-        public override string ToString()
-        {
-            return
-                $"{Name} {_demand} {_generation} {_purchaseFromUtility} {_sellToUtility} {_state} {_sellToNeighbour} {_balance} {_sellable}";
-        }
+        public override string ToString() =>
+            $"{Name} {_initialDemand} {_initialPower} {_purchaseFromUtility} {_sellToUtility} {_state} {_sellToNeighbour} {_balance} {_sellable}";
 
         private void HandleStop()
         {
             _state = State.SELL;
             Console.WriteLine($"{Name} has satisfied their energy requirements!");
             Send("broker", "unregister");
-            Console.WriteLine(ToString());
             Stop();
         }
     }
