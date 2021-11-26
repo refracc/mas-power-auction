@@ -1,0 +1,38 @@
+title Peer to Peer Energy Sharing Network
+activate Environment
+activate Broker
+activate House4
+Environment <- House4: start
+activate House3
+Environment <- House3: start
+activate House1
+Environment <- House1: start
+activate House2
+Environment <- House2: start
+activate House5
+Environment <- House5: start
+Environment -> House4: inform
+Environment -> House3: inform
+Environment -> House1: inform
+Environment -> House2: inform
+Environment -> House5: inform
+House1 -> Broker: register
+House2 -> Broker: register
+House3 -> Broker: buying
+House5 -> Broker: buying
+House4 -> Broker: register
+House3 -> Broker: search
+House5 -> Broker: search
+Broker -> House3: seller house1
+Broker -> House5: seller house1
+House5 -> House1: purchase
+House5 -> Broker: unregister
+deactivate House5
+House3 -> Broker: purchase
+House3 -> Broker: search
+Broker -> House3: seller house1
+House3 -> House1: purchase
+deactivate House3
+deactivate House4
+deactivate House2
+deactivate House1
