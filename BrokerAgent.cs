@@ -7,12 +7,12 @@ namespace Coursework
 {
     public class BrokerAgent : Agent
     {
-        public static Dictionary<string, int> SellingAgents;
+        private static Dictionary<string, int> _sellingAgents;
         public static List<string> BuyingAgents;
 
         public BrokerAgent()
         {
-            SellingAgents = new Dictionary<string, int>();
+            _sellingAgents = new Dictionary<string, int>();
             BuyingAgents = new List<string>();
         }
 
@@ -23,7 +23,7 @@ namespace Coursework
 
             if (message.Content.StartsWith("register"))
             {
-                SellingAgents.Add(msg[1], int.Parse(msg[7]));
+                _sellingAgents.Add(msg[1], int.Parse(msg[7]));
             }
             else if (message.Content.StartsWith("buying"))
             {
@@ -31,11 +31,11 @@ namespace Coursework
             }
             else if (message.Content.StartsWith("search"))
             {
-                if (SellingAgents.Count > 0)
+                if (_sellingAgents.Count > 0)
                 {
                     var name = "";
                     var lowest = int.MaxValue;
-                    foreach (var (key, value) in SellingAgents.Where(pair => pair.Value < lowest))
+                    foreach (var (key, value) in _sellingAgents.Where(pair => pair.Value < lowest))
                     {
                         name = key;
                         lowest = value;
@@ -52,9 +52,9 @@ namespace Coursework
             {
                 if (BuyingAgents.Contains(message.Sender)) BuyingAgents.Remove(message.Sender);
 
-                if (SellingAgents.ContainsKey(message.Sender)) SellingAgents.Remove(message.Sender);
+                if (_sellingAgents.ContainsKey(message.Sender)) _sellingAgents.Remove(message.Sender);
 
-                if (SellingAgents.Count != 0 || BuyingAgents.Count != 0) return;
+                if (_sellingAgents.Count != 0 || BuyingAgents.Count != 0) return;
                 Send("environment", "stop");
                 Stop();
             }
