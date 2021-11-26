@@ -32,7 +32,14 @@ House3 -> Broker: purchase
 House3 -> Broker: search
 Broker -> House3: seller house1
 House3 -> House1: purchase
-deactivate House3
-deactivate House4
-deactivate House2
+House1 -> Broker: unregister
 deactivate House1
+House3 -> Broker: unregister
+deactivate House3
+House4 -> Broker: unregister
+deactivate House4
+House2 -> Broker: unregister
+deactivate House2
+Broker -> Environment: stop
+deactivate Environment
+deactivateafter Broker

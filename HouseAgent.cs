@@ -140,12 +140,16 @@ namespace Coursework
         public override string ToString() =>
             $"{Name} {_initialDemand} {_initialPower} {_purchaseFromUtility} {_sellToUtility} {_state} {_sellToNeighbour} {_balance} {_sellable}";
 
+
+        /// <summary>
+        /// This is the method used to handle all stoppages within the system.
+        /// </summary>
         private void HandleStop()
         {
-            _state = State.SELL;
-            Console.WriteLine($"{Name} has satisfied their energy requirements!");
-            Send("broker", "unregister");
-            Stop();
+            _state = State.SELL; // Change its state.
+            Console.WriteLine($"{Name} has satisfied their energy requirements!"); // Inform user of system 
+            Send("broker", "unregister"); // Unregister the agent from the broker
+            Stop(); // Stop the agent from executing further
         }
     }
 }
