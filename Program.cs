@@ -9,6 +9,7 @@ namespace Coursework
     {
         public static void Main(string[] _)
         {
+            File.Delete("mas-experiments.csv");
             for (int j = 0; j < 10; j++) // Run code 10 times
             {
                 var env = new EnvironmentMas(); // Create agent environment
@@ -16,7 +17,7 @@ namespace Coursework
                 env.Add(e, "environment"); // Add environment agent
 
                 var b = new BrokerAgent();
-                env.Add(b, "broker"); // Create & Add Broker agent to 
+                env.Add(b, "broker"); // Create & Add Broker agent to environment
 
                 var agents = new List<HouseAgent>();
 

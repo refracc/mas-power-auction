@@ -6,7 +6,6 @@ namespace Coursework
 {
     public class HouseAgent : Agent
     {
-        private readonly int _sellToNeighbour = new Random().Next(1, 3);
         private int _balance;
         private int _demand;
         private int _generation;
@@ -15,6 +14,7 @@ namespace Coursework
         private int _initialPower;
         private int _purchaseFromUtility;
         private int _sellable;
+        private int _sellToNeighbour;
         private int _sellToUtility;
         private State _state = 0;
 
@@ -41,6 +41,7 @@ namespace Coursework
                         _initialDemand = _demand;
                         _purchaseFromUtility = int.Parse(msg[3]);
                         _sellToUtility = int.Parse(msg[4]);
+                        _sellToNeighbour = new Random().Next(_sellToUtility, _purchaseFromUtility);
                         _state = _demand > _generation ? State.BUY : State.SELL; // Ternary Operator :)
                         _sellable = _generation - _demand;
                         Console.WriteLine(ToString());
